@@ -6,15 +6,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class Users implements Serializable {
+public class Users implements Serializable, UserDetails {
 
     @Id
     @GeneratedValue
@@ -38,11 +41,14 @@ public class Users implements Serializable {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ElementCollection(targetClass = UserRoles.class)
+    @ElementCollection(targetClass = UserRoles.class,fetch = FetchType.EAGER)
     @CollectionTable(name = "authorities",
             joinColumns = @JoinColumn(name = "email", referencedColumnName = "email"))
             @Enumerated(EnumType.STRING)
     private List<UserRoles> userRoles;
+
+    public Users() {
+    }
 
     public Users(String email, String password, String name, LocalDateTime createdAt, LocalDateTime updatedAt, List<UserRoles> userRoles) {
         this.email = email;
@@ -69,8 +75,33 @@ public class Users implements Serializable {
         this.email = email;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return userRoles;
+    }
+
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
     public void setPassword(String password) {
