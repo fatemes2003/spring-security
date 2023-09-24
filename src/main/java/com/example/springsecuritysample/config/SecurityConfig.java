@@ -36,7 +36,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // all other requests need to be authenticated
                 .anyRequest().authenticated()
                 .and().formLogin().loginPage("/login")
-                .usernameParameter("email");
+                .usernameParameter("email")
+                //.defaultSuccessUrl("/admin",true);
+                .successHandler(new LoginSuccessHandler())
+                .and().exceptionHandling().accessDeniedPage("/error");
     }
 
     // Authentication with UserDetailsService

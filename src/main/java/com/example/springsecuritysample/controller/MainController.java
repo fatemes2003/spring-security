@@ -70,9 +70,9 @@ public class MainController {
         usersService.registerUser(users);
         return "redirect:/admin";
     }*/
-    
-    @RequestMapping(value = "/403", method = RequestMethod.GET)
-    public String accessDenied() {
-        return "403";
+
+    @RequestMapping(value = "/error", method = RequestMethod.GET)
+    public String errorPage() {
+        return "error";
     }
 }
