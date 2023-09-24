@@ -1,6 +1,5 @@
 package com.example.springsecuritysample.model.entity;
 
-import com.example.springsecuritysample.model.enums.UserRoles;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -12,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -41,23 +41,14 @@ public class Users implements Serializable, UserDetails {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ElementCollection(targetClass = UserRoles.class,fetch = FetchType.EAGER)
+    /*@ElementCollection(targetClass = UserRoles.class,fetch = FetchType.EAGER)
     @CollectionTable(name = "authorities",
             joinColumns = @JoinColumn(name = "email", referencedColumnName = "email"))
             @Enumerated(EnumType.STRING)
-    private List<UserRoles> userRoles;
+    private List<UserRoles> userRoles;*/
 
-    public Users() {
-    }
-
-    public Users(String email, String password, String name, LocalDateTime createdAt, LocalDateTime updatedAt, List<UserRoles> userRoles) {
-        this.email = email;
-        this.password = password;
-        this.name = name;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.userRoles = userRoles;
-    }
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<Roles> roles;
 
     public Long getId() {
         return id;
@@ -77,7 +68,10 @@ public class Users implements Serializable, UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return userRoles;
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for(Roles roles: roles)
+            authorities.addAll(roles.getAuthorities());
+        return authorities;
     }
 
     public String getPassword() {
@@ -140,11 +134,11 @@ public class Users implements Serializable, UserDetails {
         this.updatedAt = updatedAt;
     }
 
-    public List<UserRoles> getUserRoles() {
-        return userRoles;
+    public List<Roles> getRoles() {
+        return roles;
     }
 
-    public void setUserRoles(List<UserRoles> userRoles) {
-        this.userRoles = userRoles;
+    public void setRoles(List<Roles> roles) {
+        this.roles = roles;
     }
 }
