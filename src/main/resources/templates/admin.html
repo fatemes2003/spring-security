@@ -27,6 +27,7 @@
             <th scope="col">ID</th>
             <th scope="col">Email</th>
             <th scope="col">Name</th>
+            <th scope="col">Roles</th>
             <th scope="col">Operation</th>
         </tr>
         </thead>
@@ -35,6 +36,11 @@
             <th scope="row" th:text="${user.getId()}"></th>
             <td th:text="${user.getEmail()}"></td>
             <td th:text="${user.getName()}"></td>
+            <td>
+                <span th:each="role : ${user.getRoles()}">
+                    <p th:text="${role.getName()}"></p>
+                </span>
+            </td>
             <td>
                 <a class="btn btn-success" style="width: 80px"
                    th:href="@{/users/edit/{id}(id=${user.getId()})}">Edit</a>

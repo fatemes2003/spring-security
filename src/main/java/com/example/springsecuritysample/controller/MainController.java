@@ -28,11 +28,12 @@ public class MainController {
         return "login";
     }
     @RequestMapping(value = "/user", method = RequestMethod.GET)
+    @PreAuthorize("hasAuthority('OP_ACCESS_USER')")
     public String user() {
         return "user";
     }
     @RequestMapping(value = "/admin", method = RequestMethod.GET)
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('OP_ACCESS_ADMIN')")
     public String admin(Model model) {
         model.addAttribute("users", usersService.findAll());
         return "admin";
@@ -45,27 +46,31 @@ public class MainController {
         return usersService.findById(id);
     }
 
-    /*@RequestMapping(value="/admin/register")
+    @RequestMapping(value="/admin/register")
+    @PreAuthorize("hasAuthority('OP_NEW_USER')")
     public String registerPage(Model model) {
         model.addAttribute("user", new Users());
-        return "registerUser";
+        return "redirect:/admin";
     }
+
     @RequestMapping(value = "/admin/edit/{id}")
     public String editPage(Model model, @PathVariable("id") Long id) {
         model.addAttribute("user", usersService.findById(id));
         return "registerUser";
-    }*/
+    }
+
     @RequestMapping(value = "/admin/delete/{id}")
     public String delete(@PathVariable("id") Long id) {
         usersService.deleteById(usersService.findById(id));
         return "redirect:/admin";
     }
 
-    @RequestMapping(value = "/admin/register")
+    /*@RequestMapping(value = "/admin/register")
     public String register(@ModelAttribute(name = "user")Users users) {
         usersService.registerUser(users);
         return "redirect:/admin";
-    }
+    }*/
+    
     @RequestMapping(value = "/403", method = RequestMethod.GET)
     public String accessDenied() {
         return "403";
