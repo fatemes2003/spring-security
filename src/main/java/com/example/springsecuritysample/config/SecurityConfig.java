@@ -39,6 +39,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .usernameParameter("email")
                 //.defaultSuccessUrl("/admin",true);
                 .successHandler(new LoginSuccessHandler())
+                .and().rememberMe().rememberMeCookieName("remember")
+                .tokenValiditySeconds(60)
+                .rememberMeParameter("remember")
                 .and().exceptionHandling().accessDeniedPage("/error");
     }
 
