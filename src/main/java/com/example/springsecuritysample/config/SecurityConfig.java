@@ -30,15 +30,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/","/login").permitAll()
+                .antMatchers("/","/login","/error","/info").permitAll()
                 //.antMatchers("/user/**").hasAnyAuthority("USER","ADMIN")
                 //.antMatchers("/admin/**").hasAnyAuthority("ADMIN")
                 // all other requests need to be authenticated
                 .anyRequest().authenticated()
-                .and().formLogin().loginPage("/login")
-                .usernameParameter("email")
+                //.and().formLogin().loginPage("/login")
+                //.usernameParameter("email")
                 //.defaultSuccessUrl("/admin",true);
-                .successHandler(new LoginSuccessHandler())
+                //.successHandler(new LoginSuccessHandler())
+                .and().oauth2Login()
                 .and().rememberMe().rememberMeCookieName("remember")
                 .tokenValiditySeconds(60)
                 .rememberMeParameter("remember")
