@@ -1,15 +1,18 @@
 package com.example.springsecuritysample.controller;
 
+import com.example.springsecuritysample.jwt.JwtAuth;
+import com.example.springsecuritysample.jwt.JwtUtils;
 import com.example.springsecuritysample.model.entity.Users;
 import com.example.springsecuritysample.service.UsersService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -22,9 +25,13 @@ import java.util.Optional;
 @Controller
 public class MainController {
     private final UsersService usersService;
+    private final AuthenticationManager manager;
+    private final JwtUtils jwtUtils;
 
-    public MainController(UsersService usersService) {
+    public MainController(UsersService usersService, AuthenticationManager manager, JwtUtils jwtUtils) {
         this.usersService = usersService;
+        this.manager = manager;
+        this.jwtUtils = jwtUtils;
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -100,6 +107,23 @@ public class MainController {
         cookie.setMaxAge(60);
         response.addCookie(cookie);
         return "login";
+    }
+
+    @RequestMapping(value = "/jwt/login", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity<?> jwtLogin(@RequestBody JwtAuth jwtAuth, HttpServletResponse response) {
+        try {
+            manager.authenticate(new UsernamePasswordAuthenticationToken(jwtAuth.getUsername(),jwtAuth.getPassword()));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        response.addHeader("authorization", jwtUtils.generateToken(jwtAuth.getUsername()));
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/jwt/hello", method = RequestMethod.GET)
+    public @ResponseBody String jwtHello() {
+        return "Hello Jwt";
     }
 
     @RequestMapping(value = "/info", method = RequestMethod.GET)
